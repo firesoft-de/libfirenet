@@ -68,16 +68,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private final String digest_auth_user = "user";
     private final String digest_auth_passwd = "passwd";
 
-//    private final String digest_auth_url = "https://jigsaw.w3.org/HTTP/Digest/";
-//    private final String digest_auth_user = "guest";
-//    private final String digest_auth_passwd = "guest";
-
-//    private final String digest_auth_url = "https://b12.csls.de/ical/";
-//    private final String digest_auth_user = "icalcb8c3391";
-//    private final String digest_auth_passwd = "mjsaFckFh53JqNfD";
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -17,6 +17,6 @@ package firesoft.de.libfirenet.interfaces;
 
 public interface ICallback {
 
-
+    void downloadCompleted();
 
 }

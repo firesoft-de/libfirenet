@@ -42,6 +42,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
+import firesoft.de.libfirenet.interfaces.ICallback;
 import firesoft.de.libfirenet.method.RequestMethod;
 import firesoft.de.libfirenet.util.HttpState;
 
@@ -56,6 +57,11 @@ public class HttpWorker {
     //=======================================================
     //==================INTERNE VARIABLEN====================
     //=======================================================
+
+    /**
+     * Enthält das Callback Interface
+     */
+    private ICallback callback;
 
     /**
      * Enthält den Authenticator der zum Authentifzieren benutzt wird
@@ -129,8 +135,9 @@ public class HttpWorker {
      * @param url Enthält die Url des Servers
      * @param authenticator Enthält den Authenticator der zum Authentifzieren benutzt wird
      * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
+     * @param callback Interface über welches Callbacks an die Elternklasse durchgeführt werden können
      */
-    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, @Nullable ICallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         // Status initalisieren und den Anfangszustand einstellen
         state = new MutableLiveData<>();
@@ -182,6 +189,10 @@ public class HttpWorker {
         }
 
         state.postValue(HttpState.COMPLETED);
+
+        if (callback != null) {
+            callback.downloadCompleted();
+        }
 
         return stream;
     }
