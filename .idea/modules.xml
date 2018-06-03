@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/firenet_test_app/firenet_test_app.iml" filepath="$PROJECT_DIR$/firenet_test_app/firenet_test_app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/lib.iml" filepath="$PROJECT_DIR$/lib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libfirenet.iml" filepath="$PROJECT_DIR$/libfirenet.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
     </modules>
   </component>

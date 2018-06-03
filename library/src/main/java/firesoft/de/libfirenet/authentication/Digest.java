@@ -123,7 +123,7 @@ public class Digest extends AuthenticationBase {
 
             // Für die Integritätssicherung wird der Entity Body der HTTP Nachricht benötigt.
 
-            connection.
+            //connection.
 
         }
         String full = test.toString();
@@ -250,9 +250,9 @@ public class Digest extends AuthenticationBase {
         if (qop.equals("auth")) {
             rawA2 = method+ ":" + url.getPath();
         }
-        else if (qop.equals("auth-int")) {
-            rawA2 = method+ ":" + url.getPath() + ":" + ;
-        }
+//        else if (qop.equals("auth-int")) {
+//            rawA2 = method+ ":" + url.getPath() + ":" + ;
+//        }
 
         digest.update(rawA2.getBytes("ISO-8859-1"));
         hashedA2 = bytesToHexString(digest.digest());
