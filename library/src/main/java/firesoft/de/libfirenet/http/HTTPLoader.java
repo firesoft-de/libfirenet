@@ -72,7 +72,7 @@ public class HTTPLoader extends AsyncTaskLoader<ResultWrapper> {
         super(context);
 
         try {
-            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters,forceHttp);
+            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters,forceHttp, null);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
