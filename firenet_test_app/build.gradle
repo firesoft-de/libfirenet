@@ -16,14 +16,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        DEBUGGING {
-            keyAlias 'DEBUGGING'
-            keyPassword 'DEBUGGING'
-            storeFile file('D:/Development/Android/FireNet/debug.xyz')
-            storePassword 'DEBUGGING'
-        }
-    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "firesoft.de.firenet_test_app"
@@ -51,5 +43,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    implementation project(path: ':library')
+    implementation project(':library')
 }
