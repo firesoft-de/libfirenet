@@ -23,8 +23,8 @@ allprojects {
 
 ```groovy
 dependencies {
-	        implementation 'com.github.firesoft-de:libfirenet:Tag'
-	}   
+	implementation 'com.github.firesoft-de:libfirenet:Tag'
+}   
 ```
 
 
