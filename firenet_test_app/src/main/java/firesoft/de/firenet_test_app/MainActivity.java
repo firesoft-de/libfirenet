@@ -58,9 +58,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private final String basic_auth_passwd = "passwd";
 
     // Testkonstanten für Digest-Auth
-    private final String digest_auth_url = "httpbin.org/digest-auth/auth-int/user/passwd/MD5";
+    private final String digest_auth_url = "httpbin.org/digest-auth/auth/user/passwd/MD5";
     private final String digest_auth_user = "user";
     private final String digest_auth_passwd = "passwd";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -25,6 +25,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +37,9 @@ import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.http.Parameter;
 import firesoft.de.libfirenet.method.RequestMethod;
 
+/**
+ * Autehtifizierungsklasse zur Umsetzung von Digest. Achtung: "auth-int" wird nicht unterstützt.
+ */
 public class Digest extends AuthenticationBase {
 
     //=======================================================
@@ -264,7 +268,13 @@ public class Digest extends AuthenticationBase {
         String hashedResponse;
 
         if (qop.equals("auth") || qop.equals("auth-int")) {
-            cnonce = generateCnonce(CNONCE_LENGTH);
+            // "auth-int" wird nicht wirklich unterstüzt. Alibiweise wird versucht mit normalen "auth" durchzukommen.
+
+
+            // Für die Tests wird ggf. ein cnonce vorgegeben
+            if (cnonce == null) {
+                cnonce = generateCnonce(CNONCE_LENGTH);
+            }
 
             @SuppressLint("DefaultLocale")
             String nc_string = String.format("%08d", nc);
@@ -340,6 +350,32 @@ public class Digest extends AuthenticationBase {
         cnonce = builder.toString();
 
         return builder.toString();
+
+    }
+
+    //=======================================================
+    //========================Testmethode===========================
+    //=======================================================
+
+    /**
+     * Diese Methode stellt ein Interface bereit, um die grundlegenenden Berechnungsmethoden dieser Klasse testen zu können
+     */
+    protected String testInterface(String url, String requestMethod, String username, String password, String realm, String nonce, String cnonce, Digest.EncryptionMethod algorithm, String qop, String opaque, int nc) throws MalformedURLException, UnsupportedEncodingException {
+
+        this.username = username;
+        this.password = password;
+        this.realm = realm;
+        this.nonce = nonce;
+        this.cnonce = cnonce;
+        this.algorithm = algorithm;
+        this.qop = qop;
+        this.opaque = opaque;
+        this.nc = nc;
+
+        URL javaURL = new URL(url);
+
+        return generateDigest(requestMethod, javaURL);
+
 
     }
 
