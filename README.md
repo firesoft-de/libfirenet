@@ -23,6 +23,7 @@ allprojects {
 
 die folgende Abhängigkeit hinzugefügt werden.
 
+Die Beispielapp verwendet folgende Bibliotheken:
 ```groovy
 dependencies {
     implementation 'com.github.zagum:Android-SwitchIcon:1.3.7'
