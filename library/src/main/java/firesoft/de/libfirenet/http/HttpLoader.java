@@ -32,7 +32,7 @@ import firesoft.de.libfirenet.util.ResultWrapper;
 /**
  * Implementierung des HTTPWorker in einem AsyncTaskLoader
  */
-public class HTTPLoader extends AsyncTaskLoader<ResultWrapper> {
+public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
 
     //=======================================================
     //=====================VARIABLEN=========================
@@ -68,7 +68,7 @@ public class HTTPLoader extends AsyncTaskLoader<ResultWrapper> {
      * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
      * @param forceLoad Soll forceLoad() in der Methode onStartLoading verwendet werden?
      */
-    public HTTPLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean forceLoad) {
+    public HttpLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean forceLoad) {
         super(context);
 
         try {

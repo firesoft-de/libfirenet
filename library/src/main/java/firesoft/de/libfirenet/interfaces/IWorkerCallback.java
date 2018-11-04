@@ -15,8 +15,11 @@
 
 package firesoft.de.libfirenet.interfaces;
 
-public interface ICallback {
+public interface IWorkerCallback {
 
+    /**
+     * Wird aufgerufen sobald der HttpWorker seine Arbeit erfolgreich abgeschlossen hat
+     */
     void downloadCompleted();
 
 }

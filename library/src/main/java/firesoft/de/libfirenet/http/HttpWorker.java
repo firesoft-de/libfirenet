@@ -17,24 +17,19 @@ package firesoft.de.libfirenet.http;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
-import android.util.Base64;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -42,7 +37,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
-import firesoft.de.libfirenet.interfaces.ICallback;
+import firesoft.de.libfirenet.interfaces.IWorkerCallback;
 import firesoft.de.libfirenet.method.RequestMethod;
 import firesoft.de.libfirenet.util.HttpState;
 
@@ -61,7 +56,7 @@ public class HttpWorker {
     /**
      * Enthält das Callback Interface
      */
-    private ICallback callback;
+    private IWorkerCallback callback;
 
     /**
      * Enthält den Authenticator der zum Authentifzieren benutzt wird
@@ -137,7 +132,7 @@ public class HttpWorker {
      * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
      * @param callback Interface über welches Callbacks an die Elternklasse durchgeführt werden können
      */
-    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, @Nullable ICallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, @Nullable IWorkerCallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         // Status initalisieren und den Anfangszustand einstellen
         state = new MutableLiveData<>();

@@ -19,24 +19,18 @@ import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.CheckBox;
-import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import firesoft.de.libfirenet.authentication.BasicAuth;
 import firesoft.de.libfirenet.authentication.Digest;
-import firesoft.de.libfirenet.http.HTTPLoader;
+import firesoft.de.libfirenet.http.HttpLoader;
 import firesoft.de.libfirenet.method.GET;
 import firesoft.de.libfirenet.util.HttpState;
 import firesoft.de.libfirenet.util.ResultWrapper;
@@ -100,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         RadioGroup radioGroup = this.findViewById(R.id.radioGroup);
 
-        HTTPLoader loader;
+        HttpLoader loader;
 
         boolean http = !((CheckBox) this.findViewById(R.id.checkBox)).isChecked();
 
@@ -142,29 +136,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    private HTTPLoader google(boolean forceHttp) {
+    private HttpLoader google(boolean forceHttp) {
 
-        GET method = new GET();
-
-        return new HTTPLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, true);
+        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, true);
     }
 
-    private HTTPLoader basic(boolean forceHttp) {
+    private HttpLoader basic(boolean forceHttp) {
 
         BasicAuth authenticator = new BasicAuth(basic_auth_user,basic_auth_passwd);
-
-        GET method = new GET();
-
-        return new HTTPLoader(basic_auth_url,method.getClass(),getApplicationContext(),authenticator,null,forceHttp, true);
+        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true);
 
     }
 
-    private HTTPLoader digest(boolean forceHttp) {
+    private HttpLoader digest(boolean forceHttp) {
 
         Digest authenticator = new Digest(digest_auth_user,digest_auth_passwd);
-        GET method = new GET();
-
-        return new HTTPLoader(digest_auth_url,method.getClass(),getApplicationContext(),authenticator,null,forceHttp, true);
+        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true);
 
     }
 
@@ -173,9 +160,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<ResultWrapper> loader, ResultWrapper data) {
 
         result = data;
-
         Toast.makeText(getApplicationContext(),"Loader finished!",Toast.LENGTH_LONG).show();
-
         loader.reset();
 
     }
