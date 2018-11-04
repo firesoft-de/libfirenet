@@ -103,8 +103,15 @@ public class HttpWorker {
      */
     private HttpURLConnection prevCon;
 
-
+    /**
+     * Enthält den Responsestream des Servers.
+     */
     private InputStream stream;
+
+    /**
+     * Enthält die Serverresponse als String.
+     */
+    private String response;
 
     /**
      * Gibt den aktuellen Zustand in dem sich der Request befindet wieder
@@ -187,6 +194,8 @@ public class HttpWorker {
             throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_stream_null));
         }
 
+        response = toString();
+
         state.postValue(HttpState.COMPLETED);
 
         if (callback != null) {
@@ -219,7 +228,7 @@ public class HttpWorker {
     }
 
     /**
-     * Konvertiert den Inhalt des Antwortstreams des Servers in einen String
+     * Konvertiert den Inhalt des AntwortSTREAM (!) des Servers in einen String. Unter Umständen kann der Stream zum Abfragezeitpunkt vom GC geleert worden sein. Falls das Ergebnis dieser Methode als null oder leer ist, bitte mit getResponse() arbeiten.
      * @return Null, falls es beim Konvertieren zu Fehlern kommt
      */
     @Override
@@ -253,6 +262,13 @@ public class HttpWorker {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus. 
+     */
+    public String getResponse() {
+        return response;
     }
 
     //=======================================================
