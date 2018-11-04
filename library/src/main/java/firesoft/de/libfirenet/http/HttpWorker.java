@@ -265,7 +265,7 @@ public class HttpWorker {
     }
 
     /**
-     * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus. 
+     * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus.
      */
     public String getResponse() {
         return response;
