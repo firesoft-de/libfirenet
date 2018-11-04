@@ -9,7 +9,7 @@ Diese Bibliothek soll die Durchführung von HTTP und HTTPS Verbindungen vereinfa
 
 ## Verwendung
 
-Um die Bibliothek zu verwenden, muss die build.gradle geändert und
+Um die Bibliothek zu verwenden, muss die build.gradle geändert und die folgende Abhängigkeit hinzugefügt werden.
 
 ```groovy
 allprojects {
@@ -21,7 +21,12 @@ allprojects {
 }
 ```
 
-die folgende Abhängigkeit hinzugefügt werden.
+```groovy
+dependencies {
+	        implementation 'com.github.firesoft-de:libfirenet:Tag'
+	}   
+```
+
 
 Die Beispielapp verwendet folgende Bibliotheken:
 ```groovy
