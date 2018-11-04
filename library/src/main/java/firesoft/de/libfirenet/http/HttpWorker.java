@@ -166,7 +166,11 @@ public class HttpWorker {
     //===================PUBLIC METHODEN=====================
     //=======================================================
 
-    public InputStream excecute() throws IOException{
+    /**
+     * Führt die Http-Anfrage mit den vorher eingegebene Parametern aus
+     * @throws IOException falls der Rückgabestream null ist, wird eine IOException generiert
+     */
+    public void execute() throws IOException{
 
         state.postValue(HttpState.RUNNING);
 
@@ -189,8 +193,8 @@ public class HttpWorker {
             callback.downloadCompleted();
         }
 
-        return stream;
     }
+
 
     /**
      * Prüft ob eine Verbindung zum Internet besteht

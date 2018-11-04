@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
-import firesoft.de.libfirenet.method.RequestMethod;
 import firesoft.de.libfirenet.util.HttpState;
 import firesoft.de.libfirenet.util.ResultWrapper;
 
@@ -92,7 +91,7 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     public ResultWrapper loadInBackground() {
 
         try {
-            worker.excecute(); // Die Funktion gibt einen InputStream zurück. Aus diesem können alle Daten wie gewünscht ausgelesen werden.
+            worker.execute(); // Die Funktion gibt einen InputStream zurück. Aus diesem können alle Daten wie gewünscht ausgelesen werden.
         } catch (IOException e) {
             e.printStackTrace();
         }
