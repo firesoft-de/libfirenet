@@ -25,7 +25,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 4
-        versionName "1.0.3"
+        versionName "1.0.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -49,4 +49,30 @@ dependencies {
     androidTestImplementation('com.schibsted.spain:barista:2.6.0') {
         exclude group: 'com.android.support'
     }
+}
+
+// Build instructions for jitpack
+
+// build a jar with source files
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError  false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+}
+
+// build a jar with javadoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }
