@@ -229,6 +229,7 @@ public class HttpWorker {
 
     /**
      * Konvertiert den Inhalt des AntwortSTREAM (!) des Servers in einen String. Unter Umständen kann der Stream zum Abfragezeitpunkt vom GC geleert worden sein. Falls das Ergebnis dieser Methode als null oder leer ist, bitte mit getResponse() arbeiten.
+     * ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
      * @return Null, falls es beim Konvertieren zu Fehlern kommt
      */
     @Override
@@ -265,11 +266,14 @@ public class HttpWorker {
     }
 
     /**
-     * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus.
+     * Trennt die Verbindung vom Server
      */
-    public String getResponse() {
-        return response;
+    public void disconnect() {
+        if (conn != null) {
+            conn.disconnect();
+        }
     }
+
 
     //=======================================================
     //==================PRIVATE METHODEN=====================
@@ -476,6 +480,8 @@ public class HttpWorker {
         return url;
     }
 
+    // region Hilfsmethoden
+
     /**
      * Setzt die URL
      */
@@ -488,16 +494,26 @@ public class HttpWorker {
     }
 
     /**
-     * Trennt die Verbindung vom Server
+     * Löscht nicht mehr benötigte Variablen
      */
-    public void disconnect() {
-        if (conn != null) {
-            conn.disconnect();
-        }
-    }
-
     public void cleanUp() {
         conn = null;
         prevCon = null;
     }
+
+    /**
+     * Gibt die Serverantwort als Stream aus. ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
+     */
+    public InputStream getStream() {
+        return stream;
+    }
+
+    /**
+     * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus. ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
+     */
+    public String getResponse() {
+        return response;
+    }
+
+    // endregion
 }
