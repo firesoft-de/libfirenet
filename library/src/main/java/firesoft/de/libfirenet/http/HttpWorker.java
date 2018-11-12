@@ -17,6 +17,8 @@ package firesoft.de.libfirenet.http;
 
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
@@ -503,16 +505,53 @@ public class HttpWorker {
 
     /**
      * Gibt die Serverantwort als Stream aus. ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
+     * @param autoDisconnect Falls, true wird die Verbindung automatisch getrennt.
      */
-    public InputStream getStream() {
+    public InputStream getStream(boolean autoDisconnect) {
+        if (autoDisconnect) {
+            disconnect();
+        }
+
         return stream;
     }
 
     /**
      * Gibt den Inhalt des Streams unmittelbar nach Ausführung der Abfrage aus. ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
+     * @param autoDisconnect Falls, true wird die Verbindung automatisch getrennt.
      */
-    public String getResponse() {
+    public String getResponse(boolean autoDisconnect) {
+        if (autoDisconnect) {
+            disconnect();
+        }
+
         return response;
+    }
+
+    /**
+     * Wandelt den Antwortstream des Servers in eine Bitmap um
+     * @param autoDisconnect Falls, true wird die Verbindung nach dem fehlerfreien Umwandeln des Streams automatisch getrennt.
+     * @return
+     * @throws Exception Ausnahmen können während der Konvertierung des Stream in eine Bitmap auftreten. Sie werden dann automatisch generiert. Falls das Ergebnis der Konvertierung null ist, wird eine Ausnahme mit entsprechendem Fehlertext generiert.
+     */
+    public Bitmap extractBitmapFromResponse(boolean autoDisconnect) throws Exception {
+        Bitmap image = null;
+
+        try {
+            image = BitmapFactory.decodeStream(stream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (autoDisconnect) {
+            disconnect();
+        }
+
+        if (image == null) {
+            throw new Exception("Could not convert response stream to bitmap!");
+        }
+        else {
+            return image;
+        }
     }
 
     // endregion
