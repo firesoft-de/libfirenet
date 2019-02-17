@@ -104,6 +104,7 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
             worker.disconnect();
             return new ResultWrapper(result);
         } catch (NullPointerException e) {
+            worker.disconnect();
             e.printStackTrace();
             return new ResultWrapper(e);
         }
