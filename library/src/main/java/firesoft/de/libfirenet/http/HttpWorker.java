@@ -274,7 +274,7 @@ public class HttpWorker {
         if (conn != null) {
             conn.disconnect();
         }
-        
+
         if (stream != null) {
             try {
                 stream.close();
