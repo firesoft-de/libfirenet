@@ -17,7 +17,7 @@
     <!--Tag setzen, damit alle weiteren Ressourcen automatisch privat sind-->
     <public />
     <string name="exception_attempt_limit">Attempt limit exceeded! Check your credentials!</string>
-    <string name="exception_network_missing">No network conneciton found!</string>
+    <string name="exception_network_missing">No network connection found!</string>
     <string name="exception_creating_connection_failed">Failed creating connection!</string>
     <string name="exception_connection_needed">Using Digest Auth requires passing a connection!</string>
     <string name="exception_invalid_class_signature_request_method">Prompted request-method candidate is not compliant with the signature of the RequestMethod-Class!</string>
