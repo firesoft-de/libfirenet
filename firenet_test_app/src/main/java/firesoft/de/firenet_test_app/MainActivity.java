@@ -98,19 +98,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         HttpLoader loader;
 
         boolean http = !((CheckBox) this.findViewById(R.id.checkBox)).isChecked();
+        boolean gzip = ((CheckBox) this.findViewById(R.id.checkBox_GZIP)).isChecked();
 
         switch (radioGroup.getCheckedRadioButtonId()) {
 
             case R.id.rB_google:
-                loader = google(http);
+                loader = google(http,gzip);
                 break;
 
             case R.id.rB_basic:
-                loader = basic(http);
+                loader = basic(http,gzip);
                 break;
 
             case R.id.rB_digest:
-                loader = digest(http);
+                loader = digest(http,gzip);
                 break;
 
             default:
@@ -144,22 +145,22 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    private HttpLoader google(boolean forceHttp) {
+    private HttpLoader google(boolean forceHttp, boolean gzip) {
 
-        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, true,true);
+        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, gzip,true);
     }
 
-    private HttpLoader basic(boolean forceHttp) {
+    private HttpLoader basic(boolean forceHttp, boolean gzip) {
 
         BasicAuth authenticator = new BasicAuth(basic_auth_user,basic_auth_passwd);
-        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true,true);
+        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, gzip,true);
 
     }
 
-    private HttpLoader digest(boolean forceHttp) {
+    private HttpLoader digest(boolean forceHttp, boolean gzip) {
 
         Digest authenticator = new Digest(digest_auth_user,digest_auth_passwd);
-        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true,true);
+        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, gzip,true);
 
     }
 

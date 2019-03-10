@@ -251,6 +251,7 @@ public class HttpWorker {
      * Konvertiert den Inhalt des AntwortSTREAM (!) des Servers in einen String. Unter Umständen kann der Stream zum Abfragezeitpunkt vom GC geleert worden sein. Falls das Ergebnis dieser Methode als null oder leer ist, bitte mit getResponse() arbeiten.
      * ACHTUNG: Nach auslesen des Stream unbedingt .disconnect() verwenden, um die Verbindung sauber zu trennen.
      * @return Null, falls es beim Konvertieren zu Fehlern kommt
+     * @throws NullPointerException wird geworfen falls der verwendete InputStreamReader nicht initalisiert wurde.
      */
     @Override
     public String toString() throws NullPointerException {

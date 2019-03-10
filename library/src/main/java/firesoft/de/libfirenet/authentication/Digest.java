@@ -16,26 +16,17 @@
 package firesoft.de.libfirenet.authentication;
 
 import android.annotation.SuppressLint;
-import android.icu.util.Output;
-import android.support.annotation.Nullable;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.http.Parameter;
-import firesoft.de.libfirenet.method.RequestMethod;
 
 /**
  * Autehtifizierungsklasse zur Umsetzung von Digest. Achtung: "auth-int" wird nicht unterstützt.
@@ -120,17 +111,13 @@ public class Digest extends AuthenticationBase {
             return new Parameter("Authorization", "");
         }
 
-        StringBuilder test = new StringBuilder();
-
         // Prüfen ob die Integritätssicherung aktiviert ist
         if (qop.equals("auth-int")) {
 
             // Für die Integritätssicherung wird der Entity Body der HTTP Nachricht benötigt.
-
-            //connection.
+            throw new UnsupportedOperationException(generateExceptionMessage(this.getClass(),R.string.exception_authint_not_implemented));
 
         }
-        String full = test.toString();
 
         // Digest erstellen
         String digest = generateDigest(connection.getRequestMethod(), connection.getURL());
