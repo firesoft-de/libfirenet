@@ -18,7 +18,7 @@ package firesoft.de.libfirenet.http;
 import java.util.AbstractMap;
 
 /**
- * Stellt eine Datentyp bereit mit dem Parameter die per POST/GET etc. an den Server geschickt werden können oder als RequestProperty an den
+ * Stellt eine Datentyp bereit mit dem Parameter die bspw. per POST/GET etc. an den Server geschickt werden können oder als RequestProperty an den
  */
 public class Parameter implements AbstractMap.Entry {
 

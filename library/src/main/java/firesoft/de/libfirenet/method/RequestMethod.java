@@ -37,7 +37,7 @@ public abstract class RequestMethod {
      * Enthält den Namen der Abfragemethode. ACHTUNG: Wird 1:1 verwendet um die Abfragemethod der
      */
     protected String name;
-    protected HttpURLConnection connection;
+    HttpURLConnection connection;
 
     //=======================================================
     //=====================KONSTANTEN========================

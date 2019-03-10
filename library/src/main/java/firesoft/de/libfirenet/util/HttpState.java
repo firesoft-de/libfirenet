@@ -28,7 +28,7 @@ public enum HttpState {
     /**
      * Loader initalisiert
      */
-    INITALIZING,
+    INITIALIZING,
 
     /**
      * Loader läuft
