@@ -24,6 +24,7 @@ import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,6 +36,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -120,7 +122,6 @@ public class HttpWorker {
      * Gibt an, ob (wo möglich) Antworten komprimiert werden sollen
      */
     private boolean useGzipCompression;
-
 
 
     /**
@@ -258,22 +259,24 @@ public class HttpWorker {
 
         StringBuilder builder = new StringBuilder();
 
-//        int availableInt = 0;
-//        try {
-//            availableInt = stream.available();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        if (stream != null ){//&& availableInt > 0) {
+        if (stream != null ){
 
             //reader erstellen und diesen buffern. Ggf. den Stream vorher durch einen Gzip Stream schicken
             InputStreamReader reader = null;
 
             if (isResponseGzipEncoded.getValue()) {
+
+                GZIPInputStream gstream = null;
+
                 try {
-                    reader = new InputStreamReader(new GZIPInputStream(stream), Charset.forName("UTF-8"));
+                    gstream = new GZIPInputStream(stream);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    reader = new InputStreamReader(gstream, Charset.forName("UTF-8"));
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -286,6 +289,17 @@ public class HttpWorker {
             }
 
             BufferedReader bReader = new BufferedReader(reader);
+//            byte[] bytes = {10};
+//
+//            try {
+//                bytes = getBytesFromInputStream(stream);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            int a = bytes.length +1;
+
+//            Integer.toHexString(bytes[1]);
 
             String line = null;
             try {
@@ -308,6 +322,19 @@ public class HttpWorker {
 
         return builder.toString();
     }
+
+
+
+    public static byte[] getBytesFromInputStream(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        byte[] buffer = new byte[0xFFFF];
+        for (int len = is.read(buffer); len != -1; len = is.read(buffer)) {
+            os.write(buffer, 0, len);
+        }
+        return os.toByteArray();
+    }
+
+
 
     /**
      * Trennt die Verbindung vom Server
