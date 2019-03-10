@@ -258,7 +258,14 @@ public class HttpWorker {
 
         StringBuilder builder = new StringBuilder();
 
-        if (stream != null) {
+//        int availableInt = 0;
+//        try {
+//            availableInt = stream.available();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        if (stream != null ){//&& availableInt > 0) {
 
             //reader erstellen und diesen buffern. Ggf. den Stream vorher durch einen Gzip Stream schicken
             InputStreamReader reader = null;
