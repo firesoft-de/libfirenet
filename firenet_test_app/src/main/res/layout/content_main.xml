@@ -40,10 +40,10 @@
     <View
         android:id="@+id/iV_display_basic"
         android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginEnd="8dp"
+        android:layout_height="93dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:background="@color/workerNotInitalized"
         app:layout_constraintEnd_toEndOf="@+id/bt_fire_test"
         app:layout_constraintStart_toStartOf="@+id/bt_fire_test"
@@ -53,13 +53,12 @@
         android:id="@+id/tV_basic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="9dp"
         android:text="Basic-Auth"
         android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/tv_response"
         app:layout_constraintEnd_toEndOf="@+id/iV_display_basic"
-        app:layout_constraintHorizontal_bias="0.447"
         app:layout_constraintStart_toStartOf="@+id/iV_display_basic"
         app:layout_constraintTop_toTopOf="@+id/iV_display_basic" />
 
@@ -67,15 +66,24 @@
         android:id="@+id/tv_response"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="TextView"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="@+id/iV_display_basic"
         app:layout_constraintEnd_toEndOf="@+id/iV_display_basic"
         app:layout_constraintStart_toStartOf="@+id/iV_display_basic"
-        app:layout_constraintTop_toBottomOf="@+id/tV_basic" />
+        app:layout_constraintTop_toBottomOf="@+id/tV_basic"
+        tools:layout_editor_absoluteY="406dp" />
+
+    <TextView
+        android:id="@+id/tV_GZIP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="GZIP"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/iV_display_basic"
+        app:layout_constraintStart_toStartOf="@+id/iV_display_basic"
+        app:layout_constraintTop_toBottomOf="@+id/tv_response" />
 
     <RadioGroup
         android:id="@+id/radioGroup"

@@ -133,26 +133,33 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        loader.isResponseGzipEncoded().observe(this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(@Nullable Boolean encoded) {
+                adjustGZIP(encoded);
+            }
+        });
+
         return loader;
 
     }
 
     private HttpLoader google(boolean forceHttp) {
 
-        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, true);
+        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, true,true);
     }
 
     private HttpLoader basic(boolean forceHttp) {
 
         BasicAuth authenticator = new BasicAuth(basic_auth_user,basic_auth_passwd);
-        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true);
+        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true,true);
 
     }
 
     private HttpLoader digest(boolean forceHttp) {
 
         Digest authenticator = new Digest(digest_auth_user,digest_auth_passwd);
-        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true);
+        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, true,true);
 
     }
 
@@ -180,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ((TextView) this.findViewById(R.id.tV_basic)).setText("Dead");
                 ((TextView) this.findViewById(R.id.tV_basic)).setTextColor(getResources().getColor(R.color.white));
                 ((TextView) this.findViewById(R.id.tv_response)).setTextColor(getResources().getColor(R.color.white));
+                ((TextView) this.findViewById(R.id.tV_GZIP)).setTextColor(getResources().getColor(R.color.white));
                 break;
 
             case FAILED:
@@ -187,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ((TextView) this.findViewById(R.id.tV_basic)).setText("Failed");
                 ((TextView) this.findViewById(R.id.tV_basic)).setTextColor(getResources().getColor(R.color.white));
                 ((TextView) this.findViewById(R.id.tv_response)).setTextColor(getResources().getColor(R.color.white));
+                ((TextView) this.findViewById(R.id.tV_GZIP)).setTextColor(getResources().getColor(R.color.white));
                 break;
 
             case COMPLETED:
@@ -194,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ((TextView) this.findViewById(R.id.tV_basic)).setText("Finished");
                 ((TextView) this.findViewById(R.id.tV_basic)).setTextColor(getResources().getColor(R.color.white));
                 ((TextView) this.findViewById(R.id.tv_response)).setTextColor(getResources().getColor(R.color.white));
+                ((TextView) this.findViewById(R.id.tV_GZIP)).setTextColor(getResources().getColor(R.color.white));
                 break;
 
             case RUNNING:
@@ -201,13 +211,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 ((TextView) this.findViewById(R.id.tV_basic)).setText("Running");
                 ((TextView) this.findViewById(R.id.tV_basic)).setTextColor(getResources().getColor(R.color.black));
                 ((TextView) this.findViewById(R.id.tv_response)).setTextColor(getResources().getColor(R.color.black));
+                ((TextView) this.findViewById(R.id.tV_GZIP)).setTextColor(getResources().getColor(R.color.black));
                 break;
 
-            case INITALIZING:
+            case INITIALIZING:
                 this.findViewById(R.id.iV_display_basic).setBackgroundColor(getResources().getColor(R.color.workerInitalizing));
                 ((TextView) this.findViewById(R.id.tV_basic)).setText("Inializing");
                 ((TextView) this.findViewById(R.id.tV_basic)).setTextColor(getResources().getColor(R.color.black));
                 ((TextView) this.findViewById(R.id.tv_response)).setTextColor(getResources().getColor(R.color.black));
+                ((TextView) this.findViewById(R.id.tV_GZIP)).setTextColor(getResources().getColor(R.color.black));
                 break;
 
         }
@@ -216,5 +228,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     void adjustResonseCode(Integer code) {
         ((TextView) this.findViewById(R.id.tv_response)).setText(String.valueOf(code));
+    }
+
+    void adjustGZIP(Boolean encoded) {
+        if (encoded) {((TextView) this.findViewById(R.id.tV_GZIP)).setText("GZIP used");}
+        else {((TextView) this.findViewById(R.id.tV_GZIP)).setText("GZIP NOT used");}
     }
 }

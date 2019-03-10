@@ -34,6 +34,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -116,9 +117,21 @@ public class HttpWorker {
     private String response;
 
     /**
+     * Gibt an, ob (wo möglich) Antworten komprimiert werden sollen
+     */
+    private boolean useGzipCompression;
+
+
+
+    /**
      * Gibt den aktuellen Zustand in dem sich der Request befindet wieder
      */
     private MutableLiveData<HttpState> state;
+
+    /**
+     * Marker der aktviert wird falls die Antwort gzip codiert ist.
+     */
+    private MutableLiveData<Boolean> isResponseGzipEncoded;
 
 
     //=======================================================
@@ -140,12 +153,16 @@ public class HttpWorker {
      * @param authenticator Enthält den Authenticator der zum Authentifzieren benutzt wird
      * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
      * @param callback Interface über welches Callbacks an die Elternklasse durchgeführt werden können
+     * @param useGzipCompression Gibt an, ob der Server aufgefordert werden soll die Antwort zu komprimieren (Default = true)
      */
-    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, @Nullable IWorkerCallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean useGzipCompression, @Nullable IWorkerCallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         // Status initalisieren und den Anfangszustand einstellen
         state = new MutableLiveData<>();
         state.postValue(HttpState.NOT_RUNNING);
+
+        isResponseGzipEncoded = new MutableLiveData<>();
+        isResponseGzipEncoded.setValue(false);
 
         responseCode = new MutableLiveData<>();
 
@@ -155,6 +172,7 @@ public class HttpWorker {
         this.context = context;
         this.url = url;
         this.forceHTTP = forceHttp;
+        this.useGzipCompression = useGzipCompression;
 
         // Überprüfen, ob der eingegebene Kandidat für die RequestMethod mit der benötigten Signatur übereinstimmt
         if (!RequestMethod.class.isAssignableFrom(requestMethod)) {
@@ -167,7 +185,7 @@ public class HttpWorker {
         this.requestMethod = (RequestMethod) requestMethod.getConstructor().newInstance();
 
         // Status updaten
-        state.postValue(HttpState.INITALIZING);
+        state.postValue(HttpState.INITIALIZING);
 
     }
 
@@ -241,8 +259,24 @@ public class HttpWorker {
 
         if (stream != null) {
 
-            //reader erstellen und diesen buffern
-            InputStreamReader reader = new InputStreamReader(stream, Charset.forName("UTF-8"));
+            //reader erstellen und diesen buffern. Ggf. den Stream vorher durch einen Gzip Stream schicken
+            InputStreamReader reader = null;
+
+            if (isResponseGzipEncoded.getValue()) {
+                try {
+                    reader = new InputStreamReader(new GZIPInputStream(stream), Charset.forName("UTF-8"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                reader = new InputStreamReader(stream, Charset.forName("UTF-8"));
+            }
+
+            if (reader == null) {
+                throw new NullPointerException(generateExceptionMessage(this.getClass(),R.string.exception_reader_null));
+            }
+
             BufferedReader bReader = new BufferedReader(reader);
 
             String line = null;
@@ -320,6 +354,11 @@ public class HttpWorker {
             con.setRequestProperty(authentication.getKey(),  authentication.getValueAsString());
         }
 
+        // Falls gewünscht Kompressionsanforderung an den Server schicken
+        if (useGzipCompression) {
+            con.setRequestProperty("Accept-Encoding","gzip");
+        }
+
         // Verbindungsparameter einrichten
         con.setConnectTimeout(CONNECTION_TIMEOUT);
         con.setReadTimeout(CONNECTION_TIMEOUT);
@@ -335,6 +374,7 @@ public class HttpWorker {
 
         HttpURLConnection connection;
 
+        // Prüfen, ob bereits die maximal erlaubte Anzahl von Verbindungsversuchen durchgeführt wurde.
         if (attempt >= MAX_CONNECTION_ATTEMPT) {
             throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_attempt_limit));
         }
@@ -398,6 +438,14 @@ public class HttpWorker {
             case HttpURLConnection.HTTP_OK:
                 // 200 -> Alles i.O.
                 conn = connection; // Erfolgreiche Verbindung abspeichern
+
+                if ("gzip".equals(connection.getContentEncoding())) {
+                    isResponseGzipEncoded.postValue(true);
+                }
+                else {
+                    isResponseGzipEncoded.postValue(false);
+                }
+
                 return connection.getInputStream();
 
             case HttpURLConnection.HTTP_UNAUTHORIZED:
@@ -501,6 +549,10 @@ public class HttpWorker {
 
     public MutableLiveData<HttpState> getState() {
         return state;
+    }
+
+    public MutableLiveData<Boolean> isResponseGzipEncoded() {
+        return isResponseGzipEncoded;
     }
 
     /**

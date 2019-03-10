@@ -23,4 +23,5 @@
     <string name="exception_invalid_class_signature_request_method">Prompted request-method candidate is not compliant with the signature of the RequestMethod-Class!</string>
     <string name="exception_auth_needed">Server request a authentication!</string>
     <string name="exception_stream_null">Stream returned from the server is null! Check the http response code!</string>
+    <string name="exception_reader_null">Attempt to use uninitialised reader!</string>
 </resources>

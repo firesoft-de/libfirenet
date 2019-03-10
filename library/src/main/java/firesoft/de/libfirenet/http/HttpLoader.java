@@ -46,6 +46,7 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
 
     private MutableLiveData<HttpState> state;
     private MutableLiveData<Integer> responseCode;
+    private MutableLiveData<Boolean> isResponseGzipEncoded;
 
     private boolean forceLoad;
 
@@ -67,17 +68,18 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
      * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
      * @param forceLoad Soll forceLoad() in der Methode onStartLoading verwendet werden?
      */
-    public HttpLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean forceLoad) {
+    public HttpLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean useGzipCompression, boolean forceLoad) {
         super(context);
 
         try {
-            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters,forceHttp, null);
+            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters,forceHttp, useGzipCompression, null);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
 
         state = worker.getState();
         responseCode = worker.getResponseCode();
+        isResponseGzipEncoded = worker.isResponseGzipEncoded();
         this.forceLoad = forceLoad;
 
     }
@@ -142,5 +144,9 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
 
     public MutableLiveData<Integer> getResponseCode() {
         return responseCode;
+    }
+
+    public MutableLiveData<Boolean> isResponseGzipEncoded() {
+        return isResponseGzipEncoded;
     }
 }
