@@ -36,7 +36,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -263,10 +262,9 @@ public class HttpWorker {
 
             //reader erstellen und diesen buffern. Ggf. den Stream vorher durch einen Gzip Stream schicken
             InputStreamReader reader = null;
+            GZIPInputStream gstream = null;
 
             if (isResponseGzipEncoded.getValue()) {
-
-                GZIPInputStream gstream = null;
 
                 try {
                     gstream = new GZIPInputStream(stream);
@@ -289,17 +287,23 @@ public class HttpWorker {
             }
 
             BufferedReader bReader = new BufferedReader(reader);
-//            byte[] bytes = {10};
-//
-//            try {
-//                bytes = getBytesFromInputStream(stream);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            int a = bytes.length +1;
 
-//            Integer.toHexString(bytes[1]);
+            byte[] bytes = {10};
+
+            try {
+                bytes = getBytesFromInputStream(gstream);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            int a = bytes.length +1;
+
+            ArrayList<String> sList = new ArrayList<>();
+
+            for (Byte b: bytes
+            ) {
+                sList.add(Integer.toHexString(b));
+            }
 
             String line = null;
             try {
