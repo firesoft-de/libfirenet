@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
+import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
 import firesoft.de.libfirenet.util.HttpState;
 import firesoft.de.libfirenet.util.ResultWrapper;
@@ -44,8 +45,6 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     private String result;
 
     // Einstellungsvariablen
-    private boolean forceGZIP;
-    private boolean forceHTTP = false;
     private boolean forceLoad = true;
 
     // Live-Data Variablen zur Statusüberwachung
@@ -57,6 +56,8 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     //=======================================================
     //=====================KONSTANTEN========================
     //=======================================================
+
+    private static final String EXCEPTION_PATH = "libfirenet.http";
 
     //=======================================================
     //====================KONSTRUKTOR========================
@@ -75,8 +76,6 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
 
         try {
             worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters, null);
-            worker.forceGZIPEnabled(forceGZIP);
-            worker.forceHTTP(forceHTTP);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -84,7 +83,6 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
         state = worker.getState();
         responseCode = worker.getResponseCode();
         isResponseGzipEncoded = worker.isResponseGzipEncoded();
-        this.forceLoad = forceLoad;
 
     }
 
@@ -128,6 +126,13 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     //=================PRIVATE METHODEN======================
     //=======================================================
 
+    private String generateExceptionMessage(int message_id) {
+        state.postValue(HttpState.FAILED);
+        String test = EXCEPTION_PATH + this.getClass().getSimpleName() + ": " + getContext().getString(message_id);
+        return test;
+    }
+
+
     //=======================================================
     //===================GETTER SETTER=======================
     //=======================================================
@@ -157,14 +162,32 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     /**
      * Erzwingt das Setzen des Accept-encoding Headers in der Anfrage. Der Server wird dadurch aufgefordert die Antwort per gzipzu komprimieren (Default = true).
      */
-    public void forceGZIPEnabled(boolean forceGZIP) { this.forceGZIP = forceGZIP;}
-    public boolean isGZIPEnabled() {return forceGZIP;}
+    public void forceGZIPEnabled(boolean forceGZIP)
+    {
+        if (worker != null) {worker.forceGZIPEnabled(forceGZIP);}
+        else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
+    }
+
+    public boolean isGZIPEnabled()
+    {
+        if (worker != null) {return worker.isGZIPEnabled();}
+        else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
+    }
 
     /**
      * Erzwingt die Verwendung von HTTP-Verbindungen Standardmäßig werden alle Aufrufe die mit der Bibliothek durchgeführt werden über eine HTTPS Verbindung aufgebaut. (default = false)
      */
-    public void forceHTTP(boolean forceHTTP) {this.forceHTTP = forceHTTP;}
-    public boolean isHTTPForced() {return forceHTTP;}
+    public void forceHTTP(boolean forceHTTP)
+    {
+        if (worker != null) {worker.forceHTTP(forceHTTP);}
+        else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
+    }
+
+    public boolean isHTTPForced()
+    {
+        if (worker != null) {return worker.isHTTPForced();}
+        else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
+    }
 
     /**
      * Erzwingt die Verwendung von forceLoad() in onStartLoading() (default = true). Falls die Variable auf false gesetzt wird, kann es dazu kommen, dass der Loader nicht damit beginnt seine Aufgaben abzuarbeiten (loadInBackground läuft nicht an).
