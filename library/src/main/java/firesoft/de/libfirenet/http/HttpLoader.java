@@ -41,14 +41,18 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     private String password;
 
     private HttpWorker worker;
-
     private String result;
 
+    // Einstellungsvariablen
+    private boolean forceGZIP;
+    private boolean forceHTTP = false;
+    private boolean forceLoad = true;
+
+    // Live-Data Variablen zur Statusüberwachung
     private MutableLiveData<HttpState> state;
     private MutableLiveData<Integer> responseCode;
     private MutableLiveData<Boolean> isResponseGzipEncoded;
 
-    private boolean forceLoad;
 
     //=======================================================
     //=====================KONSTANTEN========================
@@ -65,14 +69,14 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
      * @param parameters Enthält Parameter welche an den Server übergeben werden sollen
      * @param url Enthält die Url des Servers
      * @param authenticator Enthält den Authenticator der zum Authentifzieren benutzt wird
-     * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
-     * @param forceLoad Soll forceLoad() in der Methode onStartLoading verwendet werden?
      */
-    public HttpLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean useGzipCompression, boolean forceLoad) {
+    public HttpLoader(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters) {
         super(context);
 
         try {
-            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters,forceHttp, useGzipCompression, null);
+            worker = new HttpWorker(url,requestMethod,getContext(),authenticator,parameters, null);
+            worker.forceGZIPEnabled(forceGZIP);
+            worker.forceHTTP(forceHTTP);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             e.printStackTrace();
         }
@@ -149,4 +153,22 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     public MutableLiveData<Boolean> isResponseGzipEncoded() {
         return isResponseGzipEncoded;
     }
+
+    /**
+     * Erzwingt das Setzen des Accept-encoding Headers in der Anfrage. Der Server wird dadurch aufgefordert die Antwort per gzipzu komprimieren (Default = true).
+     */
+    public void forceGZIPEnabled(boolean forceGZIP) { this.forceGZIP = forceGZIP;}
+    public boolean isGZIPEnabled() {return forceGZIP;}
+
+    /**
+     * Erzwingt die Verwendung von HTTP-Verbindungen Standardmäßig werden alle Aufrufe die mit der Bibliothek durchgeführt werden über eine HTTPS Verbindung aufgebaut. (default = false)
+     */
+    public void forceHTTP(boolean forceHTTP) {this.forceHTTP = forceHTTP;}
+    public boolean isHTTPForced() {return forceHTTP;}
+
+    /**
+     * Erzwingt die Verwendung von forceLoad() in onStartLoading() (default = true). Falls die Variable auf false gesetzt wird, kann es dazu kommen, dass der Loader nicht damit beginnt seine Aufgaben abzuarbeiten (loadInBackground läuft nicht an).
+     */
+    public void forceLoad(boolean forceLoad) {this.forceLoad = forceLoad;}
+    public boolean isLoadForced() {return forceLoad;}
 }

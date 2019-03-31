@@ -147,20 +147,32 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private HttpLoader google(boolean forceHttp, boolean gzip) {
 
-        return new HttpLoader(google,GET.class,getApplicationContext(),null,null,forceHttp, gzip,true);
+        HttpLoader loader = new HttpLoader(google,GET.class,getApplicationContext(),null,null);
+        loader.forceHTTP(forceHttp);
+        loader.forceGZIPEnabled(gzip);
+
+        return loader;
     }
 
     private HttpLoader basic(boolean forceHttp, boolean gzip) {
 
         BasicAuth authenticator = new BasicAuth(basic_auth_user,basic_auth_passwd);
-        return new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, gzip,true);
+        HttpLoader loader = new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null);
+        loader.forceHTTP(forceHttp);
+        loader.forceGZIPEnabled(gzip);
+
+        return loader;
 
     }
 
     private HttpLoader digest(boolean forceHttp, boolean gzip) {
 
         Digest authenticator = new Digest(digest_auth_user,digest_auth_passwd);
-        return new HttpLoader(digest_auth_url,GET.class,getApplicationContext(),authenticator,null,forceHttp, gzip,true);
+        HttpLoader loader = new HttpLoader(digest_auth_url, GET.class, getApplicationContext(), authenticator, null);
+        loader.forceHTTP(forceHttp);
+        loader.forceGZIPEnabled(gzip);
+
+        return loader;
 
     }
 
@@ -169,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<ResultWrapper> loader, ResultWrapper data) {
 
         result = data;
+        ((TextView) this.findViewById(R.id.tV_result)).setText(result.getResult().toString());
         Toast.makeText(getApplicationContext(),"Loader finished!",Toast.LENGTH_LONG).show();
         loader.reset();
 

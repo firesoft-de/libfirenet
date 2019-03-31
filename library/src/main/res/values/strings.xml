@@ -25,4 +25,5 @@
     <string name="exception_stream_null">Stream returned from the server is null! Check the http response code!</string>
     <string name="exception_reader_null">Attempt to use uninitialised reader!</string>
     <string name="exception_authint_not_implemented">Attempt to use auth-int Digest! This feature is not implemented!</string>
+    <string name="exception_input_null">Attempt to use null value!</string>
 </resources>

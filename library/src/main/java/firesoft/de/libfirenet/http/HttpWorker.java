@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -34,6 +35,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
@@ -83,9 +86,9 @@ public class HttpWorker {
     private String url;
 
     /**
-     * Enthält einen Marker der angibt, ob HTTP erzwungen werden soll
+     * Enthält einen Marker der angibt, ob eine ungesicherte HTTP Verbindung erzwungen werden soll. Standardmäßig werden alle Aufrufe die mit der Bibliothek durchgeführt werden über eine HTTPS Verbindung aufgebaut. (default = false)
      */
-    private Boolean forceHTTP;
+    private Boolean forceHTTP = false;
 
     /**
      * Enthält die Anfragemethode
@@ -118,9 +121,9 @@ public class HttpWorker {
     private String response;
 
     /**
-     * Gibt an, ob (wo möglich) Antworten komprimiert werden sollen
+     * Gibt an, ob (falls möglich) Antworten komprimiert werden sollen
      */
-    private boolean useGzipCompression;
+    private boolean forceGZIP = true;
 
 
     /**
@@ -151,11 +154,9 @@ public class HttpWorker {
      * @param parameters Enthält Parameter welche an den Server übergeben werden sollen
      * @param url Enthält die Url des Servers
      * @param authenticator Enthält den Authenticator der zum Authentifzieren benutzt wird
-     * @param forceHttp Erzwingt die Verwendung von HTTP anstatt HTTPS
      * @param callback Interface über welches Callbacks an die Elternklasse durchgeführt werden können
-     * @param useGzipCompression Gibt an, ob der Server aufgefordert werden soll die Antwort zu komprimieren (Default = true)
      */
-    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, boolean forceHttp, boolean useGzipCompression, @Nullable IWorkerCallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public HttpWorker(String url, Class requestMethod, Context context, @Nullable AuthenticationBase authenticator, @Nullable ArrayList<Parameter> parameters, @Nullable IWorkerCallback callback) throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
 
         // Status initalisieren und den Anfangszustand einstellen
         state = new MutableLiveData<>();
@@ -171,8 +172,6 @@ public class HttpWorker {
         this.authenticator = authenticator;
         this.context = context;
         this.url = url;
-        this.forceHTTP = forceHttp;
-        this.useGzipCompression = useGzipCompression;
 
         // Überprüfen, ob der eingegebene Kandidat für die RequestMethod mit der benötigten Signatur übereinstimmt
         if (!RequestMethod.class.isAssignableFrom(requestMethod)) {
@@ -214,7 +213,13 @@ public class HttpWorker {
             throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_stream_null));
         }
 
-        response = toString();
+        try {
+            response = toString();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            response = "";
+            state.postValue(HttpState.FAILED);
+        }
 
         state.postValue(HttpState.COMPLETED);
 
@@ -256,24 +261,30 @@ public class HttpWorker {
     @Override
     public String toString() throws NullPointerException {
 
+        if (response != null && !response.equals("")) {
+            return response;
+        }
+
         StringBuilder builder = new StringBuilder();
+        InputStreamReader reader = null;
+        BufferedReader bReader;
+        GZIPInputStream gstream = null;
 
         if (stream != null ){
 
             //reader erstellen und diesen buffern. Ggf. den Stream vorher durch einen Gzip Stream schicken
-            InputStreamReader reader = null;
-            GZIPInputStream gstream = null;
 
             if (isResponseGzipEncoded.getValue()) {
 
                 try {
-                    gstream = new GZIPInputStream(stream);
+                    gstream = new GZIPInputStream(conn.getInputStream());
                 } catch (IOException e) {
                     e.printStackTrace();
+                    return null;
                 }
 
                 try {
-                    reader = new InputStreamReader(gstream, Charset.forName("UTF-8"));
+                    reader = new InputStreamReader(gstream);// , Charset.forName("UTF-8"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -286,24 +297,24 @@ public class HttpWorker {
                 throw new NullPointerException(generateExceptionMessage(this.getClass(),R.string.exception_reader_null));
             }
 
-            BufferedReader bReader = new BufferedReader(reader);
+            bReader = new BufferedReader(reader);
 
-            byte[] bytes = {10};
-
-            try {
-                bytes = getBytesFromInputStream(gstream);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            int a = bytes.length +1;
-
-            ArrayList<String> sList = new ArrayList<>();
-
-            for (Byte b: bytes
-            ) {
-                sList.add(Integer.toHexString(b));
-            }
+//            byte[] bytes = {10};
+//
+//            try {
+//                bytes = getBytesFromInputStream(gstream);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            int a = bytes.length +1;
+//
+//            ArrayList<String> sList = new ArrayList<>();
+//
+//            for (Byte b: bytes
+//            ) {
+//                sList.add(Integer.toHexString(b));
+//            }
 
             String line = null;
             try {
@@ -324,12 +335,42 @@ public class HttpWorker {
             throw new NullPointerException(generateExceptionMessage(this.getClass(),R.string.exception_stream_null));
         }
 
+        // Streams und Streamreader schließen
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (gstream != null) { gstream.close(); }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            bReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Ergebnis als String ausgeben
         return builder.toString();
     }
 
 
+    /**
+     *
+     * @param is
+     * @return
+     * @throws IOException
+     */
+    private byte[] getBytesFromInputStream(InputStream is) throws IOException {
 
-    public static byte[] getBytesFromInputStream(InputStream is) throws IOException {
+        if (is == null) {
+            throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_input_null));
+        }
+
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         byte[] buffer = new byte[0xFFFF];
         for (int len = is.read(buffer); len != -1; len = is.read(buffer)) {
@@ -394,7 +435,7 @@ public class HttpWorker {
         }
 
         // Falls gewünscht Kompressionsanforderung an den Server schicken
-        if (useGzipCompression) {
+        if (forceGZIP) {
             con.setRequestProperty("Accept-Encoding","gzip");
         }
 
@@ -478,8 +519,16 @@ public class HttpWorker {
                 // 200 -> Alles i.O.
                 conn = connection; // Erfolgreiche Verbindung abspeichern
 
+                for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
+                    String values = "";
+                    for (String value : entries.getValue()) {
+                        values += value + ",";
+                    }
+                    Log.d("Response", entries.getKey() + " - " +  values );
+                }
+
                 if ("gzip".equals(connection.getContentEncoding())) {
-                    isResponseGzipEncoded.postValue(true);
+                   isResponseGzipEncoded.postValue(true);
                 }
                 else {
                     isResponseGzipEncoded.postValue(false);
@@ -652,6 +701,20 @@ public class HttpWorker {
             return image;
         }
     }
+
+    /**
+     * Erzwingt das Setzen des Accept-encoding Headers in der Anfrage. Der Server wird dadurch aufgefordert die Antwort per gzipzu komprimieren (Default = true).
+     */
+    public void forceGZIPEnabled(boolean forceGZIP) { this.forceGZIP = forceGZIP;}
+
+    public boolean isGZIPEnabled() {return forceGZIP;}
+
+    /**
+     * Erzwingt die Verwendung von HTTP-Verbindungen(default = false)
+     */
+    public void forceHTTP(boolean forceHTTP) {this.forceHTTP = forceHTTP;}
+
+    public boolean isHTTPForced() {return forceHTTP;}
 
     // endregion
 }
