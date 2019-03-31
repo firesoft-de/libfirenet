@@ -177,11 +177,13 @@ public class HttpWorker {
         if (!RequestMethod.class.isAssignableFrom(requestMethod)) {
             // Die eingegebene Klasse passt nicht zur benötigten Klassensignatur
 
-            throw new IllegalAccessException(generateExceptionMessage(this.getClass(),R.string.exception_invalid_class_signature_request_method));
+            throw new IllegalAccessException(generateExceptionMessage(R.string.exception_invalid_class_signature_request_method));
         }
 
         // Anhand des gegebenen Kandidaten eine neue Instanz erstellen
         this.requestMethod = (RequestMethod) requestMethod.getConstructor().newInstance();
+
+        this.callback = callback;
 
         // Status updaten
         state.postValue(HttpState.INITIALIZING);
@@ -210,15 +212,7 @@ public class HttpWorker {
 
         // Enthält der Stream Daten?
         if (stream == null) {
-            throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_stream_null));
-        }
-
-        try {
-            response = toString();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            response = "";
-            state.postValue(HttpState.FAILED);
+            throw new IOException(generateExceptionMessage(R.string.exception_stream_null));
         }
 
         state.postValue(HttpState.COMPLETED);
@@ -294,7 +288,7 @@ public class HttpWorker {
             }
 
             if (reader == null) {
-                throw new NullPointerException(generateExceptionMessage(this.getClass(),R.string.exception_reader_null));
+                throw new NullPointerException(generateExceptionMessage(R.string.exception_reader_null));
             }
 
             bReader = new BufferedReader(reader);
@@ -332,7 +326,7 @@ public class HttpWorker {
 
         }
         else {
-            throw new NullPointerException(generateExceptionMessage(this.getClass(),R.string.exception_stream_null));
+            throw new NullPointerException(generateExceptionMessage(R.string.exception_stream_null));
         }
 
         // Streams und Streamreader schließen
@@ -368,7 +362,7 @@ public class HttpWorker {
     private byte[] getBytesFromInputStream(InputStream is) throws IOException {
 
         if (is == null) {
-            throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_input_null));
+            throw new IOException(generateExceptionMessage(R.string.exception_input_null));
         }
 
         ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -398,17 +392,39 @@ public class HttpWorker {
         }
     }
 
+    /**
+     * Wandelt den Antwortstream des Servers in eine Bitmap um
+     * @param autoDisconnect Falls, true wird die Verbindung nach dem fehlerfreien Umwandeln des Streams automatisch getrennt.
+     * @return
+     * @throws Exception Ausnahmen können während der Konvertierung des Stream in eine Bitmap auftreten. Sie werden dann automatisch generiert. Falls das Ergebnis der Konvertierung null ist, wird eine Ausnahme mit entsprechendem Fehlertext generiert.
+     */
+    public Bitmap extractBitmapFromResponse(boolean autoDisconnect) throws Exception {
+        Bitmap image = null;
+
+        try {
+            image = BitmapFactory.decodeStream(stream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (autoDisconnect) {
+            disconnect();
+        }
+
+        if (image == null) {
+            throw new Exception("Could not convert response stream to bitmap!");
+        }
+        else {
+            return image;
+        }
+    }
 
     //=======================================================
     //==================PRIVATE METHODEN=====================
     //=======================================================
 
     /**
-     * Nimmt verschiedene Einstellungen an der HttpURLConnection vor
-     * @param con
-     * @param useAuthenticator
-     * @return
-     * @throws IOException
+     * Richtet die HttpURLConnection ein und gibt diese anschließend zurück
      */
     private HttpURLConnection setupConnection(HttpURLConnection con, boolean useAuthenticator) throws IOException {
 
@@ -456,7 +472,7 @@ public class HttpWorker {
 
         // Prüfen, ob bereits die maximal erlaubte Anzahl von Verbindungsversuchen durchgeführt wurde.
         if (attempt >= MAX_CONNECTION_ATTEMPT) {
-            throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_attempt_limit));
+            throw new IOException(generateExceptionMessage(R.string.exception_attempt_limit));
         }
         else if (attempt <= 1) {
 
@@ -466,7 +482,7 @@ public class HttpWorker {
 
             // Internetverbindung prüfen und ggf. einen Fehler werfen. Prüfen der Verbindung beim ersten Versuch sollte ausreichen
             if (!checkNetwork(context)) {
-                throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_network_missing));
+                throw new IOException(generateExceptionMessage(R.string.exception_network_missing));
             }
         }
 
@@ -482,7 +498,7 @@ public class HttpWorker {
         }
 
         if (connection == null) {
-            throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_creating_connection_failed));
+            throw new IOException(generateExceptionMessage(R.string.exception_creating_connection_failed));
         }
 
         // Verbindungseinstellungen, Authentifzierung etc. festlegen
@@ -542,7 +558,7 @@ public class HttpWorker {
                     return request(true, (short)(attempt + 1));
                 }
                 else {
-                    throw new IOException(generateExceptionMessage(this.getClass(),R.string.exception_auth_needed));
+                    throw new IOException(generateExceptionMessage(R.string.exception_auth_needed));
                 }
 
             default:
@@ -601,9 +617,10 @@ public class HttpWorker {
 
     }
 
-    private String generateExceptionMessage(Class reporter, int message_id) {
+    private String generateExceptionMessage(int message_id) {
         state.postValue(HttpState.FAILED);
-        String test = EXCEPTION_PATH + reporter.getSimpleName() + ": " + context.getString(message_id);
+        String test = EXCEPTION_PATH + this.getClass().getSimpleName() + ": " + context.getString(message_id);
+        state.postValue(HttpState.FAILED);
         return test;
     }
 
@@ -649,6 +666,8 @@ public class HttpWorker {
     public void cleanUp() {
         conn = null;
         prevCon = null;
+        requestMethod = null;
+        authenticator = null;
     }
 
     /**
@@ -676,45 +695,63 @@ public class HttpWorker {
     }
 
     /**
-     * Wandelt den Antwortstream des Servers in eine Bitmap um
-     * @param autoDisconnect Falls, true wird die Verbindung nach dem fehlerfreien Umwandeln des Streams automatisch getrennt.
-     * @return
-     * @throws Exception Ausnahmen können während der Konvertierung des Stream in eine Bitmap auftreten. Sie werden dann automatisch generiert. Falls das Ergebnis der Konvertierung null ist, wird eine Ausnahme mit entsprechendem Fehlertext generiert.
-     */
-    public Bitmap extractBitmapFromResponse(boolean autoDisconnect) throws Exception {
-        Bitmap image = null;
-
-        try {
-            image = BitmapFactory.decodeStream(stream);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (autoDisconnect) {
-            disconnect();
-        }
-
-        if (image == null) {
-            throw new Exception("Could not convert response stream to bitmap!");
-        }
-        else {
-            return image;
-        }
-    }
-
-    /**
      * Erzwingt das Setzen des Accept-encoding Headers in der Anfrage. Der Server wird dadurch aufgefordert die Antwort per gzipzu komprimieren (Default = true).
      */
-    public void forceGZIPEnabled(boolean forceGZIP) { this.forceGZIP = forceGZIP;}
+    public void forceGZIP(boolean forceGZIP) { this.forceGZIP = forceGZIP;}
 
-    public boolean isGZIPEnabled() {return forceGZIP;}
+    /**
+     * Gibt an ob GZIP erzwungen wird
+     * @return
+     */
+    public boolean isGZIPForced() {return forceGZIP;}
 
     /**
      * Erzwingt die Verwendung von HTTP-Verbindungen(default = false)
      */
     public void forceHTTP(boolean forceHTTP) {this.forceHTTP = forceHTTP;}
 
+    /**
+     * Gibt an, ob HTTP erzwungen wird
+     */
     public boolean isHTTPForced() {return forceHTTP;}
 
-    // endregion
+    /**
+     * Gibt die aktuelle URL aus
+     */
+    public String getURL() {return url;}
+
+    /**
+     * Schreibt den Authenticator in die interne Variable. Der Authenticator wird zum Authentifzieren während der HTTP(S)-Verbindung benutzt.
+     * @param authenticator
+     */
+    public void setAuthenticator(AuthenticationBase authenticator)
+    {
+        if (authenticator != null) {
+            this.authenticator = authenticator;
+        }
+    }
+
+    /**
+     * Gibt den aktuellen Authenticator aus.
+     * @throws NullPointerException Sollte kein Authenticator vorhanden sein, wird eine NullPointerException ausgelöst
+     */
+    public AuthenticationBase getAuthenticator() throws NullPointerException {
+        if (authenticator == null) {
+            throw new NullPointerException(generateExceptionMessage(R.string.exception_attempt_to_return_null));
+        }
+        else {
+            return authenticator;
+        }
+    }
+
+    /**
+     * Setzt das Callback-Interface
+     */
+    public void setCallback(IWorkerCallback callback)
+    {
+        if (callback != null) {
+            this.callback = callback;
+        }
+    }
+
 }
