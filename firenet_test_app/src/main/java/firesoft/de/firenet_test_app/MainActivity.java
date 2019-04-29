@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     //=======================================================
 
     // Testkonstanten für Anfrage ohne Auth
-    private final String google = "httpbin.org/";
+    private final String httpbin = "httpbin.org/";
 
     // Testkonstanten für Basic-Auth
     private final String basic_auth_url = "httpbin.org/basic-auth/user/passwd";
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         switch (radioGroup.getCheckedRadioButtonId()) {
 
-            case R.id.rB_google:
+            case R.id.rB_httpbin:
                 loader = google(http,gzip);
                 break;
 
@@ -147,9 +147,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private HttpLoader google(boolean forceHttp, boolean gzip) {
 
-        HttpLoader loader = new HttpLoader(google,GET.class,getApplicationContext(),null,null);
+        HttpLoader loader = new HttpLoader(httpbin,GET.class,getApplicationContext(),null,null);
         loader.forceHTTP(forceHttp);
-        loader.forceGZIPEnabled(gzip);
+        loader.forceGZIP(gzip);
 
         return loader;
     }
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         BasicAuth authenticator = new BasicAuth(basic_auth_user,basic_auth_passwd);
         HttpLoader loader = new HttpLoader(basic_auth_url,GET.class,getApplicationContext(),authenticator,null);
         loader.forceHTTP(forceHttp);
-        loader.forceGZIPEnabled(gzip);
+        loader.forceGZIP(gzip);
 
         return loader;
 
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         Digest authenticator = new Digest(digest_auth_user,digest_auth_passwd);
         HttpLoader loader = new HttpLoader(digest_auth_url, GET.class, getApplicationContext(), authenticator, null);
         loader.forceHTTP(forceHttp);
-        loader.forceGZIPEnabled(gzip);
+        loader.forceGZIP(gzip);
 
         return loader;
 
@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<ResultWrapper> loader, ResultWrapper data) {
 
         result = data;
+        loader.cl
         ((TextView) this.findViewById(R.id.tV_result)).setText(result.getResult().toString());
         Toast.makeText(getApplicationContext(),"Loader finished!",Toast.LENGTH_LONG).show();
         loader.reset();

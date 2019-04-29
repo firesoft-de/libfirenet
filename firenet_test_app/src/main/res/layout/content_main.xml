@@ -95,12 +95,12 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
-            android:id="@+id/rB_google"
+            android:id="@+id/rB_httpbin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="Google" />
+            android:text="Httpbin" />
 
         <RadioButton
             android:id="@+id/rB_basic"

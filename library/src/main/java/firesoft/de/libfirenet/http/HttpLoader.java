@@ -26,6 +26,7 @@ import java.util.ArrayList;
 
 import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
+import firesoft.de.libfirenet.interfaces.IWorkerCallback;
 import firesoft.de.libfirenet.util.HttpState;
 import firesoft.de.libfirenet.util.ResultWrapper;
 
@@ -106,6 +107,8 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
 
             // Daten wurden runtergeladen. Fairerweise wird jetzt die Verbindung zum Server getrennt und nicht darauf gewartet, dass der Timeout ausläuft.
             worker.disconnect();
+            worker.cleanUp();
+
             return new ResultWrapper(result);
         } catch (NullPointerException e) {
             worker.disconnect();
@@ -162,15 +165,15 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
     /**
      * Erzwingt das Setzen des Accept-encoding Headers in der Anfrage. Der Server wird dadurch aufgefordert die Antwort per gzipzu komprimieren (Default = true).
      */
-    public void forceGZIPEnabled(boolean forceGZIP)
+    public void forceGZIP(boolean forceGZIP)
     {
-        if (worker != null) {worker.forceGZIPEnabled(forceGZIP);}
+        if (worker != null) {worker.forceGZIP(forceGZIP);}
         else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
     }
 
-    public boolean isGZIPEnabled()
+    public boolean isGZIPForced()
     {
-        if (worker != null) {return worker.isGZIPEnabled();}
+        if (worker != null) {return worker.isGZIPForced();}
         else {throw new NullPointerException(generateExceptionMessage(R.string.exception_worker_not_initialized));}
     }
 
@@ -194,4 +197,22 @@ public class HttpLoader extends AsyncTaskLoader<ResultWrapper> {
      */
     public void forceLoad(boolean forceLoad) {this.forceLoad = forceLoad;}
     public boolean isLoadForced() {return forceLoad;}
+
+    /**
+     * Setzt den Authenticator
+     * @param authenticator
+     */
+    public void setAuthenticator(AuthenticationBase authenticator) {worker.setAuthenticator(authenticator);}
+
+    /**
+     * Gibt den aktuellen Authenticator aus.
+     * @throws NullPointerException Sollte kein Authenticator vorhanden sein, wird eine NullPointerException ausgelöst
+     */
+    public AuthenticationBase getAuthenticator() throws NullPointerException {return worker.getAuthenticator();}
+
+    /**
+     * Setzt das Callback-Interface
+     */
+    public void setCallback(IWorkerCallback callback) {worker.setCallback(callback);}
+
 }

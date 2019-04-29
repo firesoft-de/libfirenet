@@ -26,5 +26,6 @@
     <string name="exception_reader_null">Attempt to use uninitialised reader!</string>
     <string name="exception_authint_not_implemented">Attempt to use auth-int Digest! This feature is not implemented!</string>
     <string name="exception_input_null">Attempt to use null value!</string>
-    <string name="exception_worker_not_initialized">Attempt to get value from HTTPWorker without proper initialization </string>
+    <string name="exception_worker_not_initialized">Attempt to get value from HTTPWorker without proper initialization!</string>
+    <string name="exception_attempt_to_return_null">Attempt to return a value which is null! </string>
 </resources>
