@@ -272,14 +272,14 @@ public class HttpWorker {
             if (isResponseGzipEncoded.getValue()) {
 
                 try {
-                    gstream = new GZIPInputStream(conn.getInputStream());
+                    gstream = new GZIPInputStream(stream);
                 } catch (IOException e) {
                     e.printStackTrace();
                     return null;
                 }
 
                 try {
-                    reader = new InputStreamReader(gstream);// , Charset.forName("UTF-8"));
+                    reader = new InputStreamReader(gstream,Charset.forName("UTF-8"));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
