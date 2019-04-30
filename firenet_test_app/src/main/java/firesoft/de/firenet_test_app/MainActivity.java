@@ -181,7 +181,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<ResultWrapper> loader, ResultWrapper data) {
 
         result = data;
-        loader.cl
         ((TextView) this.findViewById(R.id.tV_result)).setText(result.getResult().toString());
         Toast.makeText(getApplicationContext(),"Loader finished!",Toast.LENGTH_LONG).show();
         loader.reset();

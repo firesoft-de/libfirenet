@@ -42,6 +42,7 @@ import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import firesoft.de.libfirenet.BuildConfig;
 import firesoft.de.libfirenet.R;
 import firesoft.de.libfirenet.authentication.AuthenticationBase;
 import firesoft.de.libfirenet.interfaces.IWorkerCallback;
@@ -535,12 +536,14 @@ public class HttpWorker {
                 // 200 -> Alles i.O.
                 conn = connection; // Erfolgreiche Verbindung abspeichern
 
-                for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
-                    String values = "";
-                    for (String value : entries.getValue()) {
-                        values += value + ",";
+                if (BuildConfig.DEBUG) {
+                    for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
+                        String values = "";
+                        for (String value : entries.getValue()) {
+                            values += value + ",";
+                        }
+                        Log.d("Response Headers", entries.getKey() + " - " + values);
                     }
-                    Log.d("Response", entries.getKey() + " - " +  values );
                 }
 
                 if ("gzip".equals(connection.getContentEncoding())) {

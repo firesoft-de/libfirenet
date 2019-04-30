@@ -34,6 +34,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -42,8 +46,19 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.12'
+    testImplementation 'com.android.support.test:runner:1.0.2'
+    testImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    // Dependency für die ViewModelProviders-Klasse!
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation "android.arch.lifecycle:viewmodel:1.1.1"
+    annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
+
+    // Testbarkeit für Componentelemente (LiveData) herstellen
+    testImplementation 'android.arch.core:core-testing:1.1.1'
+
 
     // Barista for UI testing
     androidTestImplementation('com.schibsted.spain:barista:2.6.0') {
